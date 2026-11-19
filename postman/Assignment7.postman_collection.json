@@ -1,0 +1,463 @@
+{
+  "info": {
+    "_postman_id": "7a7a7a7a-7a7a-47a7-87a7-7a7a7a7a7a07",
+    "name": "Assignment 7 - MongoDB & Express.js",
+    "description": "All 19 required Assignment 7 endpoints. Set baseUrl to http://localhost:3000. Run collection setup requests 01-04, then insert requests 05-07 before read, update, and aggregation requests. Request 15 deletes data; run it after the read queries.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "bookId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Create Books Collection (Validation)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/collection/books",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "collection",
+            "books"
+          ]
+        },
+        "description": "Creates the books collection with a required, non-empty title. Run once on a fresh database."
+      }
+    },
+    {
+      "name": "02 - Create Author (Implicit Collection)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/collection/authors",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "collection",
+            "authors"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Author1\",\n  \"nationality\": \"British\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "03 - Create Capped Logs Collection (1MB)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/collection/logs/capped",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "collection",
+            "logs",
+            "capped"
+          ]
+        },
+        "description": "Creates the capped logs collection. Run once on a fresh database."
+      }
+    },
+    {
+      "name": "04 - Create Books Title Index",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/collection/books/index",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "collection",
+            "books",
+            "index"
+          ]
+        }
+      }
+    },
+    {
+      "name": "05 - Insert One Book",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/books",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Book1\",\n  \"author\": \"Ali\",\n  \"year\": 1937,\n  \"genres\": [\n    \"Fantasy\",\n    \"Adventure\"\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "The test script stores insertedId as collection variable bookId for request 07."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  const data = pm.response.json();",
+              "  if (data.insertedId) pm.collectionVariables.set(\"bookId\", data.insertedId);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Insert At Least Three Books",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/books/batch",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "batch"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"title\": \"Future\",\n    \"author\": \"George Orwell\",\n    \"year\": 2020,\n    \"genres\": [\n      \"Science Fiction\"\n    ]\n  },\n  {\n    \"title\": \"To Kill a Mockingbird\",\n    \"author\": \"Harper Lee\",\n    \"year\": 1960,\n    \"genres\": [\n      \"Classic\",\n      \"Fiction\"\n    ]\n  },\n  {\n    \"title\": \"Brave New World\",\n    \"author\": \"Aldous Huxley\",\n    \"year\": 2006,\n    \"genres\": [\n      \"Dystopian\",\n      \"Science Fiction\"\n    ]\n  }\n]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "07 - Insert Log for Book1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/logs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "logs"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"book_id\": \"{{bookId}}\",\n  \"action\": \"borrowed\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Run request 05 first. It automatically saves the inserted book ID as bookId."
+      }
+    },
+    {
+      "name": "08 - Update Future Year to 2022",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/books/Future",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "Future"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"year\": 2022\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "09 - Find Book by Title",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/title?title=Brave%20New%20World",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "title"
+          ],
+          "query": [
+            {
+              "key": "title",
+              "value": "Brave%20New%20World"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "10 - Find Books by Year Range",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/year?from=1990&to=2010",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "year"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "1990"
+            },
+            {
+              "key": "to",
+              "value": "2010"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "11 - Find Books by Genre",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/genre?genre=Science%20Fiction",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "genre"
+          ],
+          "query": [
+            {
+              "key": "genre",
+              "value": "Science%20Fiction"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "12 - Skip 2, Limit 3, Sort Year Descending",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/skip-limit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "skip-limit"
+          ]
+        }
+      }
+    },
+    {
+      "name": "13 - Find Books with Integer Year",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/year-integer",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "year-integer"
+          ]
+        }
+      }
+    },
+    {
+      "name": "14 - Exclude Horror and Science Fiction",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/exclude-genres",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "exclude-genres"
+          ]
+        }
+      }
+    },
+    {
+      "name": "15 - Delete Books Before 2000",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/before-year?year=2000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "before-year"
+          ],
+          "query": [
+            {
+              "key": "year",
+              "value": "2000"
+            }
+          ]
+        },
+        "description": "Deletes matching documents. Run after requests 09-14 if you want to inspect the original sample data first."
+      }
+    },
+    {
+      "name": "16 - Aggregation 1: Filter and Sort",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/aggregate1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "aggregate1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "17 - Aggregation 2: Project Title Author Year",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/aggregate2",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "aggregate2"
+          ]
+        }
+      }
+    },
+    {
+      "name": "18 - Aggregation 3: Unwind Genres",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/aggregate3",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "aggregate3"
+          ]
+        }
+      }
+    },
+    {
+      "name": "19 - Aggregation 4: Join Logs with Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/books/aggregate4",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "books",
+            "aggregate4"
+          ]
+        },
+        "description": "Run request 07 first. Uses book_id to match the related book."
+      }
+    }
+  ]
+}
